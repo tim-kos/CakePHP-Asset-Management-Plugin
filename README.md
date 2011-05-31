@@ -46,11 +46,13 @@ In case you intend to use LESScss, you require Nodejs version 0.2.2 or later.
 
 2. Create the folders /app/webroot/css/aggregate and /app/webroot/js/aggregate, chmod them to 644 and and then add the execute flag to directories recursively. Make sure to chown them to www-data.www-data:
 
+```
   chmod -R 644 /path/to/project/app/webroot/js/aggregate
   chmod -R +X /path/to/project/app/webroot/js/aggregate
   chown www-data.www-data /path/to/project/app/webroot/js/aggregate
+```
 
-  .. and likewise for /css/aggregate.
+.. and likewise for /css/aggregate.
 
 Make sure to create these folders for all environments (production, staging, etc).
 
@@ -117,10 +119,11 @@ css_includes.ctp:
         )
     );
     $asset->includeFiles($inclusionRules, $settings);
-
+    ?>
 ```
 
 js_includes.ctp:
+
 ```php
     <?php
     if (!isset($asset)) {
@@ -263,6 +266,7 @@ The only thing you need to change is the call to $this->Html->script() in the in
 
 Change it from
 ```php
+    <?php
     if ($out) {
         if (!isset($this->Html)) {
             App::import('Helper', 'Html');
@@ -281,11 +285,13 @@ Change it from
             }
         }
     }
+    ?>
 ```
 
 to
 
 ```php
+    <?php
     if ($out) {
         if (!isset($this->Html)) {
             App::import('Helper', 'Html');
@@ -308,5 +314,6 @@ to
             }
         }
     }
+    ?>
 ```
 Now the plugin should work for you as well on Cake 1.2.x.
