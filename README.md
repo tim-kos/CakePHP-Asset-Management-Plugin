@@ -265,6 +265,7 @@ Here is a list of all options you can set for js files:
 The only thing you need to change is the call to $this->Html->script() in the includeFiles() method of the AssetHelper.
 
 Change it from
+
 ```php
     <?php
     if ($out) {
