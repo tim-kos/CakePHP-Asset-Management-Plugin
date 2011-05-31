@@ -66,32 +66,34 @@ If you use Git, it's a good idea to add an "empty" file to each folder and just 
 5. Now open the css_includes.php file and add all css (or less) files that you want to load for specific controllers/action pairs:
 
 Example:
-``` php
+
+```php
     <?php
     $config = array(
-    	'CssIncludes' => array(
-    		'vars_and_mixins.less' => '*:*', // always loaded
-    		'assemblies.less' => 'Posts:*', // loaded for all actions of the Posts Controller
-    		'stats.less' => 'Statistics:*, !Statistics:dashboard', // loaded for all actions in the StatisticsController except for the dashboard action
-    		'home.less' => 'Home:view', // only loaded for HomeController::view()
-    		'admin.less' => '*:admin_*', // loaded for all actions prefixed by "admin_"
-    		'//fonts.googleapis.com/css?family=Inconsolata' => '*:*' // an external stylesheet loaded everywhere
-    		// ...
-    	)
+        'CssIncludes' => array(
+            'vars_and_mixins.less' => '*:*', // always loaded
+            'assemblies.less' => 'Posts:*', // loaded for all actions of the Posts Controller
+            'stats.less' => 'Statistics:*, !Statistics:dashboard', // loaded for all actions in the StatisticsController except for the dashboard action
+            'home.less' => 'Home:view', // only loaded for HomeController::view()
+            'admin.less' => '*:admin_*', // loaded for all actions prefixed by "admin_"
+            '//fonts.googleapis.com/css?family=Inconsolata' => '*:*' // an external stylesheet loaded everywhere
+    // ...
+        )
     );
+    ?>
 ```
 
 Do this likewise for javascript files in your js_includes.php file:
 
-``` php
+```php
     <?php
     $config = array(
-    	'JsIncludes' => array(
-    		'dep/jquery.js' => '*:*',
-    		'plugins/flot/jquery.flot.min.js' => 'Statistics:admin_dashboard',
-    		'plugins/flot/jquery.flot.selection.js' => 'Statistics:admin_dashboard',
-    		// ...
-    	)
+        'JsIncludes' => array(
+            'dep/jquery.js' => '*:*',
+            'plugins/flot/jquery.flot.min.js' => 'Statistics:admin_dashboard',
+            'plugins/flot/jquery.flot.selection.js' => 'Statistics:admin_dashboard',
+            // ...
+        )
     );
     ?>
 ```
@@ -100,42 +102,42 @@ Do this likewise for javascript files in your js_includes.php file:
 
 css_includes.ctp:
 
-``` php
+```php
     <?php
     if (!isset($asset)) {
-    	return;
+        return;
     }
 
     $inclusionRules = Configure::read('CssIncludes');
     $settings = array(
-    	'type' => 'css',
-    	'packaging' => Configure::read('Assets.packaging'),
-    	'css' => array(
-    		'mixins_file' => 'vars_and_mixins.less' // if you need support for less
-    	)
+        'type' => 'css',
+        'packaging' => Configure::read('Assets.packaging'),
+        'css' => array(
+            'mixins_file' => 'vars_and_mixins.less' // if you need support for less
+        )
     );
     $asset->includeFiles($inclusionRules, $settings);
-    ?>
+
 ```
 
 js_includes.ctp:
-``` php
+```php
     <?php
     if (!isset($asset)) {
-    	return;
+        return;
     }
 
     $inclusionRules = Configure::read('JsIncludes');
     $settings = array(
-    	'type' => 'js',
-    	'packaging' => Configure::read('Assets.packaging')
+        'type' => 'js',
+        'packaging' => Configure::read('Assets.packaging')
     );
 
     // IE sometimes has problems with minifications.
     // Better turn minification off for IE.
     $isIe = isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false;
     if ($isIe) {
-    	$settings['minify'] = false;
+        $settings['minify'] = false;
     }
     $asset->includeFiles($inclusionRules, $settings);
     ?>
@@ -143,13 +145,13 @@ js_includes.ctp:
 
 7. Make sure to load the css_includes element in the header of your layouts:
 
-``` php
+```php
     <?php echo $this->element('css_includes'); ?>
 ```
 
 8. Make sure to load the js_includes element in the footer of your layout:
 
-``` php
+```php
     <?php echo $this->element('js_includes'); ?>
 ```
 
@@ -179,22 +181,23 @@ Make sure to run the shell as root or in sudo as www-data to avoid permission pr
 
 Here is a list of all options you can set for css files:
 
-``` php
+```php
+    <?php
     $inclusionRules = Configure::read('CssIncludes');
     $settings = array(
-    	'type' => 'css', // the type of inclusion to do; can be "css" or "js"
-    	'packaging' => Configure::read('Assets.packaging'), // determine if files should be combined or not
-    	'css' => array(
-    		'path' => CSS, // the path where to look for stylesheets and where your "aggregate" folder is
-    		'preConvertExt' => 'less', // the extension of the files prior to conversion to LESS; set this to false disable LESS conversion; default is 'less'
-    		'ext' => 'css', // the extension of the result file(s)
-    		'delim' => "\n\n", // delimiter to use between the contents of css files in the combined css file
-    		'mixins_file' => 'vars_and_mixins.less' // the file to prepend to less conversions so variables and mixins are properly used, default is ''
-    		'minification_engine' => array(
-    			'method' => 'cssmin', // which algorithmn to use for css minifications, default is cssmin
-    			'per_file' => false // if the minification should be run for each included css file or only once on the combined file; default is false
-    		)
-    	)
+        'type' => 'css', // the type of inclusion to do; can be "css" or "js"
+        'packaging' => Configure::read('Assets.packaging'), // determine if files should be combined or not
+        'css' => array(
+            'path' => CSS, // the path where to look for stylesheets and where your "aggregate" folder is
+            'preConvertExt' => 'less', // the extension of the files prior to conversion to LESS; set this to false disable LESS conversion; default is 'less'
+            'ext' => 'css', // the extension of the result file(s)
+            'delim' => "\n\n", // delimiter to use between the contents of css files in the combined css file
+            'mixins_file' => 'vars_and_mixins.less' // the file to prepend to less conversions so variables and mixins are properly used, default is ''
+            'minification_engine' => array(
+                'method' => 'cssmin', // which algorithmn to use for css minifications, default is cssmin
+                'per_file' => false // if the minification should be run for each included css file or only once on the combined file; default is false
+            )
+        )
     );
     $asset->includeFiles($inclusionRules, $settings);
 ```
@@ -204,22 +207,22 @@ Here is a list of all options you can set for css files:
 
 Here is a list of all options you can set for js files:
 
-``` php
+```php
     <?php
     $inclusionRules = Configure::read('JsIncludes');
     $settings = array(
-    	'type' => 'js',
-    	'packaging' => Configure::read('Assets.packaging')
-    	'js' => array(
-    		'path' => JS, // the path where to look for scripts and where your "aggregate" folder is
-    		'ext' => 'js', // the extension of the result file(s)
-    		'delim' => ";\n\n", // delimiter to use between the contents of css files in the combined css
-    		'js_i18n' => true, // whether to do translate __('some test') occurences in your javascript files
-    		'minification_engine' => array(
-    			'method' => 'jsmin', // which algorithmn to use for js minifications, default is "jsmin", can also be "google_closure"
-    			'per_file' => true // if the minification should be run for each included js file or only once on the combined file; default is true
-    		)
-    	),
+        'type' => 'js',
+        'packaging' => Configure::read('Assets.packaging')
+        'js' => array(
+            'path' => JS, // the path where to look for scripts and where your "aggregate" folder is
+            'ext' => 'js', // the extension of the result file(s)
+            'delim' => ";\n\n", // delimiter to use between the contents of css files in the combined css
+            'js_i18n' => true, // whether to do translate __('some test') occurences in your javascript files
+            'minification_engine' => array(
+                'method' => 'jsmin', // which algorithmn to use for js minifications, default is "jsmin", can also be "google_closure"
+                'per_file' => true // if the minification should be run for each included js file or only once on the combined file; default is true
+            )
+        ),
     );
     $asset->includeFiles($inclusionRules, $settings);
     ?>
@@ -259,49 +262,51 @@ Here is a list of all options you can set for js files:
 The only thing you need to change is the call to $this->Html->script() in the includeFiles() method of the AssetHelper.
 
 Change it from
+```php
+    if ($out) {
+        if (!isset($this->Html)) {
+            App::import('Helper', 'Html');
+            $this->Html = new HtmlHelper();
+        }
 
-if ($out) {
-	if (!isset($this->Html)) {
-		App::import('Helper', 'Html');
-		$this->Html = new HtmlHelper();
-	}
+        if ($type == 'js') {
+            foreach ($externals as $file) {
+                echo $this->Html->script($file);
+            }
+        }
 
-	if ($type == 'js') {
-		foreach ($externals as $file) {
-			echo $this->Html->script($file);
-		}
-	}
-
-	if ($type == 'css') {
-		foreach ($externals as $file) {
-			echo $this->Html->css($file);
-		}
-	}
-}
+        if ($type == 'css') {
+            foreach ($externals as $file) {
+                echo $this->Html->css($file);
+            }
+        }
+    }
+```
 
 to
 
-if ($out) {
-	if (!isset($this->Html)) {
-		App::import('Helper', 'Html');
-		$this->Html = new HtmlHelper();
-	}
-	if (!isset($this->Javascript)) {
-		App::import('Helper', 'Javascript');
-		$this->Html = new JavascriptHelper();
-	}
+```php
+    if ($out) {
+        if (!isset($this->Html)) {
+            App::import('Helper', 'Html');
+            $this->Html = new HtmlHelper();
+        }
+        if (!isset($this->Javascript)) {
+            App::import('Helper', 'Javascript');
+            $this->Html = new JavascriptHelper();
+        }
 
-	if ($type == 'js') {
-		foreach ($externals as $file) {
-			echo $this->Javascript->link($file);
-		}
-	}
+        if ($type == 'js') {
+            foreach ($externals as $file) {
+                echo $this->Javascript->link($file);
+            }
+        }
 
-	if ($type == 'css') {
-		foreach ($externals as $file) {
-			echo $this->Html->css($file);
-		}
-	}
-}
-
+        if ($type == 'css') {
+            foreach ($externals as $file) {
+                echo $this->Html->css($file);
+            }
+        }
+    }
+```
 Now the plugin should work for you as well on Cake 1.2.x.
