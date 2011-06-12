@@ -2,7 +2,7 @@
 
 Dealing with javascript files and css files is easy. You just include all your stylesheets and scripts on every page. However, with all these mobile devices accessing your app we must make an effort to reduce loading time. Non-mobile users will also appreciate efforts to optimize frontend performance of your app, as it's in most cases a far more serious bottleneck than the performance of your backend (php, mysql, etc).
 
-The Asset plugin does exactly that for you - it combines and minifies scripts and stylesheets and makes sure, that only the assets needed for a specific view are loaded. It also supports preprocessors like LESS and Coffeescript. Here is the full feature set:
+The Asset plugin does exactly that for you - it combines and minifies scripts and stylesheets and makes sure, that only the assets needed for a specific view are loaded. It also supports preprocessors like LESS, Coffeescript and Kaffeine. Here is the full feature set:
 
 ## Features
 
@@ -318,4 +318,4 @@ Now the plugin should work for you as well on Cake 1.2.x.
 
 # Changelog
 
-version 0.2 Changing the api for minification engines and preprocessors. Adding support for coffeescript. Adding support for uglifyjs compressor. jsmin is still available, but uglifyjs is also the default by now.
+version 0.2 Changing the api for minification engines and preprocessors. Adding support for coffeescript and kaffeine. Adding support for uglifyjs compressor. jsmin is still available, but uglifyjs is also the default by now.
