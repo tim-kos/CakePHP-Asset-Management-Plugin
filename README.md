@@ -2,36 +2,29 @@
 
 Dealing with javascript files and css files is easy. You just include all your stylesheets and scripts on every page. However, with all these mobile devices accessing your app we must make an effort to reduce loading time. Non-mobile users will also appreciate efforts to optimize frontend performance of your app, as it's in most cases a far more serious bottleneck than the performance of your backend (php, mysql, etc).
 
-The Asset plugin does exactly that for you - it combines and minifies scripts and stylesheets and makes sure, that only the assets needed for a specific are loaded. Here is the full feature set:
+The Asset plugin does exactly that for you - it combines and minifies scripts and stylesheets and makes sure, that only the assets needed for a specific view are loaded. It also supports preprocessors like LESS and Coffeescript. Here is the full feature set:
 
 ## Features
 
-1. Combining js files and css files.
+* Combining js files and css files.
 
-2. Minification of combined files with support for different algorithmns (jsmin, google closure compiler and cssmin). There is an easy way to add your own algorithmns as well.
-
-3. Ability to specify which assets should be loaded for a given Controller::action pair. This ensures you only load the files that you really need on the page.
-
-4. Optional support for converting LESS to CSS with support for prepending a file to the package that contains variables and less mixins.
-
-5. Automatic detection and conversion for image paths in stylesheets.
-
-5. Combining and minification of files is optional, so that you can load the proper files in development mode to keep error messages pointing to the correct files and lines.
-
-6. Support for javascript internationalisation using the __('some test') syntax
-
-8. Automagic including of files that belong to your controller action or layout. For example if you access /posts/edit/2 the plugin will try to load the stylesheet /app/webroot/css/views/posts/edit.less and the script /app/webroot/js/views/posts/edit.js.
+* Minification of combined files with support for different algorithmns (jsmin, google closure compiler and cssmin). There is an easy way to add your own algorithmns as well.
+* Ability to specify which assets should be loaded for a given Controller::action pair. This ensures you only load the files that you really need on the page.
+* Optional support for converting LESS to CSS with support for prepending a file to the package that contains variables and less mixins.
+* Support for Coffeescript as a preprocessor for your javascript.
+* Automatic detection and conversion for image paths in stylesheets.
+* Combining and minification of files is optional, so that you can load the proper files in development mode to keep error messages pointing to the correct files and lines.
+* Support for javascript internationalisation using the __('some test') syntax
+* Automagic including of files that belong to your controller action or layout. For example if you access /posts/edit/2 the plugin will try to load the stylesheet /app/webroot/css/views/posts/edit.less and the script /app/webroot/js/views/posts/edit.js.
 
  It will also load /app/webroot/css/views/layouts/default.less and /app/webroot/js/views/layouts/default.js or whatever layout has been set in your PostsController.  
  You can also configure these auto-include paths to your liking.
- 
-9. A shell to prebuild all packaged asset files for all Controller::action pairs on deployment
+ * A shell to prebuild all packaged asset files for all Controller::action pairs on deployment
    -> This is optional, as in most cases the conversion can be done on the fly as it's really fast
    -> This builds packaged files or all languages (think of javascript i18n) and all layouts (think of the auto include paths)
 
-10. Handles external stylesheets and scripts gracefully, by not including them into packaged files.
-
-11. Only rebuilds packaged files if any of the stylesheets or scripts included in them changed (based on file modified time).
+* Handles external stylesheets and scripts gracefully, by not including them into packaged files.
+* Only rebuilds packaged files if any of the stylesheets or scripts included in them changed (based on file modified time).
 
 
 ## Requirements & Installation
