@@ -17,7 +17,7 @@ class AssetTest extends AppTestCase {
 
 	function startTest() {
 		parent::startTest();
-		$this->Sut->resetCache();
+		$this->Sut->reset();
 		foreach ($this->multiPackage as $file) {
 			touch($file);
 		}
@@ -54,6 +54,7 @@ class AssetTest extends AppTestCase {
 		$files = glob(TESTS_TMP . DS . '*');
 		$fileNames = $this->Sut->_concatFileNames($this->multiPackage);
 
+		$files = $this->_removeEmptyFile($files);
 		$this->assertEqual(count($this->multiPackage), count($files));
 
 		// test clean dir only removes files that start with the $fileNames string
@@ -64,11 +65,22 @@ class AssetTest extends AppTestCase {
 		$someNewFile = TESTS_TMP . $fileNames . '_' . time() . 'csv';
 		touch($someNewFile);
 		$files = glob(TESTS_TMP . DS . '*');
+		$files = $this->_removeEmptyFile($files);
 		$this->assertEqual(count($this->multiPackage) + 1, count($files));
 
 		$this->Sut->_cleanDir(TESTS_TMP, $fileNames);
 		$files = glob(TESTS_TMP . DS . '*');
+		$files = $this->_removeEmptyFile($files);
 		$this->assertEqual(count($this->multiPackage), count($files));
+	}
+
+	function _removeEmptyFile($files) {
+		foreach ($files as $key => $file) {
+			if (strpos($file, 'empty') !== false) {
+				unset($files[$key]);
+			}
+		}
+		return $files;
 	}
 
 	function testConvertCssPaths() {
@@ -125,7 +137,33 @@ LESS;
 }
 CSS;
 
-		$result = $this->Sut->_convertLessToCss($less);
+		$result = $this->Sut->_less($less);
+		$this->assertEqual($result, $expected);
+	}
+
+	function testConvertCoffeescriptToJs() {
+		$coffee = 'cubes = (math.cube num for num in list)';
+		$expected = <<<JS
+(function() {
+  var cubes, num;
+  cubes = (function() {
+    var _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = list.length; _i < _len; _i++) {
+      num = list[_i];
+      _results.push(math.cube(num));
+    }
+    return _results;
+  })();
+}).call(this);
+
+JS;
+
+		$this->Sut->settings['js']['preprocessor'] = array(
+			'method' => 'coffeescript',
+			'ext' => 'coffee'
+		);
+		$result = $this->Sut->_coffeescript($coffee);
 		$this->assertEqual($result, $expected);
 	}
 
@@ -140,15 +178,28 @@ CSS;
 		$this->assertEqual($this->Sut->_cssmin($css), $expected);
 	}
 
-	function testMinifyJs() {
+	function testJsmin() {
 		$js = <<<JS
 		$(function() {
-		  $('.js_prettyjson').each(function() {}
+		  $('.js_prettyjson').each(function() {});
 		});
 JS;
 
-		$expected = "\n\$(function(){\$('.js_prettyjson').each(function(){}});";
+		$expected = "\n\$(function(){\$('.js_prettyjson').each(function(){});});";
 		$result = $this->Sut->_jsmin($js);
+		$this->assertEqual($result, $expected);
+	}
+
+	function testUglifyjs() {
+		$js = <<<JS
+		$(function() {
+		  $('.js_prettyjson').each(function() {});
+		});
+JS;
+
+		$expected = "\$(function(){\$(\".js_prettyjson\").each(function(){})})";
+		$result = $this->Sut->_uglifyjs($js);
+
 		$this->assertEqual($result, $expected);
 	}
 
@@ -164,7 +215,7 @@ JS;
 		$expected = '';
 		foreach ($this->multiPackage as $i => $file) {
 			// since this is a js package, minification adds an extra \n at the start
-			$expected .= "\n";
+			// $expected .= "\n";
 			$expected .= file_get_contents($file);
 
 			if ($i < count($this->multiPackage) - 1) {
@@ -172,6 +223,6 @@ JS;
 			}
 		}
 
-		$this->assertEqual($result, $expected);
+		$this->assertEqual(trim($result), trim($expected));
 	}
 }

@@ -191,15 +191,18 @@ Here is a list of all options you can set for css files:
         'type' => 'css', // the type of inclusion to do; can be "css" or "js"
         'packaging' => Configure::read('Assets.packaging'), // determine if files should be combined or not
         'css' => array(
-            'path' => CSS, // the path where to look for stylesheets and where your "aggregate" folder is
-            'preConvertExt' => 'less', // the extension of the files prior to conversion to LESS; set this to false disable LESS conversion; default is 'less'
-            'ext' => 'css', // the extension of the result file(s)
-            'delim' => "\n\n", // delimiter to use between the contents of css files in the combined css file
-            'mixins_file' => 'vars_and_mixins.less' // the file to prepend to less conversions so variables and mixins are properly used, default is ''
-            'minification_engine' => array(
-                'method' => 'cssmin', // which algorithmn to use for css minifications, default is cssmin
-                'per_file' => false // if the minification should be run for each included css file or only once on the combined file; default is false
-            )
+          'path' => CSS, // the path where to look for stylesheets and where your "aggregate" folder is
+          'ext' => 'css', // the extension of the result file(s)
+          'delim' => "\n\n", // delimiter to use between the contents of css files in the combined css file
+          'preprocessor' => array(
+            'method' => 'less', // the preprocessor to use
+            'pre_include_file' => 'vars_and_mixins.less', // the file to prepend to less conversions so variables and mixins are properly used, default is ''
+            'ext' => 'less', // the extension of the files prior to conversion to LESS; set this to false disable LESS conversion; default is 'less'
+          ),
+          'minification' => array(
+            'method' => 'cssmin', // which algorithmn to use for css minifications, default is cssmin
+            'per_file' => false // if the minification should be run for each included css file or only once on the combined file; default is false
+          )
         )
     );
     $asset->includeFiles($inclusionRules, $settings);
@@ -221,7 +224,7 @@ Here is a list of all options you can set for js files:
             'ext' => 'js', // the extension of the result file(s)
             'delim' => ";\n\n", // delimiter to use between the contents of css files in the combined css
             'js_i18n' => true, // whether to do translate __('some test') occurences in your javascript files
-            'minification_engine' => array(
+            'minification' => array(
                 'method' => 'jsmin', // which algorithmn to use for js minifications, default is "jsmin", can also be "google_closure"
                 'per_file' => true // if the minification should be run for each included js file or only once on the combined file; default is true
             )
@@ -318,3 +321,8 @@ to
     ?>
 ```
 Now the plugin should work for you as well on Cake 1.2.x.
+
+
+# Changelog
+
+version 0.2 Changing the api for minification engines and preprocessors. Adding support for coffeescript. Adding support for uglifyjs compressor. jsmin is still available, but uglifyjs is also the default by now.

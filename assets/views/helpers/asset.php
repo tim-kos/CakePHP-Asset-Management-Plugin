@@ -10,32 +10,36 @@
  */
 class AssetHelper extends AppHelper {
 	var $helpers = array('Common', 'Html');
-	var $_fileFetchingCache = array();
-	var $_resultCache = array();
-	var $_lessVars = '';
+
 	var $settings = array(
 		'css' => array(
 			'path' => CSS,
-			'preConvertExt' => 'less',
 			'ext' => 'css',
 			'delim' => "\n\n",
-			'lessConversionPerFile' => false,
-			'mixins_file' => '',
-			'minification_engine' => array(
+			'preprocessor' => array(
+				'method' => 'less',
+				'ext' => 'less',
+				'pre_include_file' => '',
+				'per_file' => false
+			),
+			'minification' => array(
 				'method' => 'cssmin',
 				'per_file' => false
 			)
 		),
 		'js' => array(
 			'path' => JS,
-			'preConvertExt' => 'js',
 			'ext' => 'js',
 			'delim' => ";\n\n",
-			'coffeeConversionPerFile' => false,
-			'js_i18n' => true,
-			'minification_engine' => array(
-				'method' => 'jsmin',
-				'per_file' => true
+			'i18n' => true,
+			'preprocessor' => array(
+				'method' => false,
+				'ext' => '',
+				'per_file' => false
+			),
+			'minification' => array(
+				'method' => 'uglifyjs',
+				'per_file' => false
 			)
 		),
 		'cleanDir' => true,
@@ -50,6 +54,11 @@ class AssetHelper extends AppHelper {
 	var $params = array();
 	var $lang = null;
 	var $pathToNode = '/usr/local/bin/node';
+	var $_fileFetchingCache = array();
+	var $_resultCache = array();
+	var $_preIncludeContent = '';
+	var $_usePreprocessor = true;
+
 /**
  * Builds the packaged and minified asset file for a given $package with $settings.
  *
@@ -63,6 +72,8 @@ class AssetHelper extends AppHelper {
 		$this->settings = Set::merge($this->settings, $settings);
 		extract($this->settings);
 		$opts = $this->settings[$type];
+
+		$this->_usePreprocessor = !empty($opts['preprocessor']['method']);
 
 		if (!class_exists('ShellDispatcher')) {
 			$View = ClassRegistry::getObject('view');
@@ -91,6 +102,7 @@ class AssetHelper extends AppHelper {
 		$externals = $files[1];
 
 		// check to build cache
+
 		$settings = $this->settings;
 		unset($settings['params'], $settings['cleanDir'], $settings['layout']);
 		$key = md5(json_encode($settings)) . md5(json_encode($includes));
@@ -134,7 +146,7 @@ class AssetHelper extends AppHelper {
 	function reset() {
 		$this->_fileFetchingCache = array();
 		$this->_resultCache = array();
-		$this->_lessVars = '';
+		$this->_preIncludeContent = '';
 	}
 /**
  * Adds javascript specific to a view to the global registry to be embedded in the footer,
@@ -193,41 +205,39 @@ class AssetHelper extends AppHelper {
 		$opts = $this->settings[$type];
 		$result = array();
 
-		// if there is a configured mixins file to load variables, mixins, etc. load its contents
-		if ($type === 'css' && !empty($opts['mixins_file']) && empty($this->_lessVars)) {
-			foreach ($includes as $include) {
-				if (basename($include) == $opts['mixins_file']) {
-					$this->_lessVars = file_get_contents($include);
-					break;
-				}
-			}
-		}
+		$this->_parsePreIncludeFile($includes, $opts);
 
 		foreach ($includes as $include) {
 			$content = '';
-			if ($type === 'css' && !empty($this->_lessVars)) {
-				$content .= $this->_lessVars . "\n\n";
+			if ($type === 'css' && !empty($this->_preIncludeContent)) {
+				$content .= $this->_preIncludeContent . "\n\n";
 			}
 			$content .= file_get_contents($include);
 
 			if ($type === 'js') {
-				if ($this->lang && strpos($content, $opts['js_i18n']) !== false) {
+				if ($this->lang && strpos($content, $opts['i18n']) !== false) {
 					$content = $this->_parseJsTranslations($content);
 				}
 
 				$ext = explode('.', $include);
 				$ext = array_pop($ext);
-				if ($ext == $opts['preConvertExt']) {
-					$content = $this->_convertCoffeeScriptToJs($content);
+
+				if ($this->_usePreprocessor && $ext == $opts['preprocessor']['ext']) {
+					$method = '_' . $opts['preprocessor']['method'];
+					$content = $this->{$method}($content);
 				}
 			}
 
 			if ($type === 'css') {
 				$content = $this->_convertCssPaths($content);
-				$content = $this->_convertLessToCss($content);
+				if ($this->_usePreprocessor && $ext == $opts['preprocessor']['ext']) {
+					$method = '_' . $opts['preprocessor']['method'];
+					$content = $this->{$method}($content);
+				}
 			}
 
-			$file = r(array('.' . $opts['preConvertExt'], '.' . $opts['ext']), '', basename($include));
+			$toRemove = array('.' . $opts['preprocessor']['ext'], '.' . $opts['ext']);
+			$file = r($toRemove, '', basename($include));
 			$file = $opts['path'] . 'aggregate' . DS . $file . '.' . $opts['ext'];
 
 			file_put_contents($file, $content);
@@ -247,6 +257,28 @@ class AssetHelper extends AppHelper {
 			}
 			if ($type == 'css') {
 				echo $this->Html->css($file);
+			}
+		}
+	}
+/**
+ * undocumented function
+ *
+ * @param string $includes 
+ * @param string $opts 
+ * @return void
+ * @author Tim Koschuetzki
+ */
+	function _parsePreIncludeFile($includes, $opts) {
+		$preIncludeFile = $this->_usePreprocessor &&
+						  !empty($opts['preprocessor']['pre_include_file']);
+		if (!$preIncludeFile || !empty($this->_preIncludeContent)) {
+			return;
+		}
+
+		foreach ($includes as $include) {
+			if (basename($include) == $opts['preprocessor']['pre_include_file']) {
+				$this->_preIncludeContent = file_get_contents($include);
+				break;
 			}
 		}
 	}
@@ -309,8 +341,10 @@ class AssetHelper extends AppHelper {
 					$myPath = r(':pass:', $this->params['pass'][0], $myPath);
 				}
 
-				if (strpos($myPath, '.' . $opts['preConvertExt']) === false) {
-					$myPath = $myPath . '.' . $opts['preConvertExt'];
+				if ($this->_usePreprocessor && strpos($myPath, '.' . $opts['preprocessor']['ext']) === false) {
+					$myPath .= '.' . $opts['preprocessor']['ext'];
+				} else {
+					$myPath .= '.' . $opts['ext'];
 				}
 
 				if (file_exists($myPath) && !in_array($myPath, $result)) {
@@ -355,18 +389,21 @@ class AssetHelper extends AppHelper {
 
 			$content = $this->_fetchContentFromPackage($package, $type, $opts['delim']);
 
+			$usePreprocessor = $this->_usePreprocessor && !$opts['preprocessor']['per_file'];
 			if ($type === 'css') {
 				$content = $this->_convertCssPaths($content);
-				if (!$opts['lessConversionPerFile']) {
-					$content = $this->_convertLessToCss($content);
+				if ($usePreprocessor) {
+					$method = '_' . $opts['preprocessor']['method'];
+					$content = $this->{$method}($content);
 				}
 			}
 
-			if ($type === 'js' && !$opts['coffeeConversionPerFile']) {
-				$content = $this->_convertCoffeeScriptToJs($content);
+			if ($type === 'js' && $usePreprocessor) {
+				$method = '_' . $opts['preprocessor']['method'];
+				$content = $this->{$method}($content);
 			}
 
-			$minifyEngine = $opts['minification_engine'];
+			$minifyEngine = $opts['minification'];
 			if ($this->settings['minify'] && !$minifyEngine['per_file']) {
 				$method = '_' . $minifyEngine['method'];
 				if (method_exists($this, $method)) {
@@ -395,17 +432,7 @@ class AssetHelper extends AppHelper {
 	function _fetchContentFromPackage($package, $type, $delimiter) {
 		$opts = $this->settings[$type];
 
-		// if there is a configured mixins file to load variables, mixins, etc. load its contents
-		$prependLessVars = $type == 'css' && $opts['lessConversionPerFile'] && 
-						 !empty($opts['mixins_file']) && empty($this->_lessVars);
-		if ($prependLessVars) {
-			foreach ($package as $include) {
-				if (basename($include) == $opts['mixins_file']) {
-					$this->_lessVars = file_get_contents($include);
-					break;
-				}
-			}
-		}
+		$this->_parsePreIncludeFile($package, $opts);
 
 		$result = '';
 		foreach ($package as $include) {
@@ -417,25 +444,28 @@ class AssetHelper extends AppHelper {
 				$content = file_get_contents($include);
 
 				if ($type === 'js') {
-					if ($this->lang && strpos($content, $opts['js_i18n']) !== false) {
+					if ($this->lang && strpos($content, $opts['i18n']) !== false) {
 						$cacheKey = $include . $this->lang;
 						$content = $this->_parseJsTranslations($content);
 					}
-					
 				}
 
 				$ext = explode('.', $include);
 				$ext = array_pop($ext);
 
-				if ($type == 'css' && $opts['lessConversionPerFile']) {
-					$content = $this->_convertLessToCss($this->_lessVars . $content);
+				$hasPreprocessorExt = $opts['preprocessor']['ext'] === $ext;
+				$usePreprocessor = $this->_usePreprocessor && $opts['preprocessor']['per_file'] && $hasPreprocessorExt;
+				if ($type == 'css' && $usePreprocessor) {
+					$method = '_' . $opts['preprocessor']['method'];
+					$content = $this->{$method}($content);
 				}
 
-				if ($type == 'js' && $opts['coffeeConversionPerFile'] && $ext == $opts['preConvertExt']) {
-					$content = $this->_convertCoffeeScriptToJs($content);
+				if ($type == 'js' && $usePreprocessor) {
+					$method = '_' . $opts['preprocessor']['method'];
+					$content = $this->{$method}($content);
 				}
 
-				$minifyEngine = $opts['minification_engine'];
+				$minifyEngine = $opts['minification'];
 				if ($this->settings['minify'] && $minifyEngine['per_file']) {
 					$method = '_' . $minifyEngine['method'];
 					if (method_exists($this, $method)) {
@@ -451,6 +481,7 @@ class AssetHelper extends AppHelper {
 					$this->_fileFetchingCache[$include] = $content;
 				}
 			}
+
 			$result .= $content . $delimiter;
 		}
 		return substr($result, 0, -1 * strlen($delimiter));
@@ -474,13 +505,13 @@ class AssetHelper extends AppHelper {
  * @return void
  * @author Tim Koschuetzki
  */
-	function _convertLessToCss($less) {
+	function _less($less) {
 		$opts = $this->settings['css'];
-		if ($opts['preConvertExt'] != 'less') {
+		if ($opts['preprocessor']['method'] != 'less') {
 			return $less;
 		}
 
-		$tmpFileName = $opts['path'] . 'aggregate' . DS . md5($less) . '.' . $opts['preConvertExt'];
+		$tmpFileName = $opts['path'] . 'aggregate' . DS . md5($less) . '.' . $opts['preprocessor']['ext'];
 		file_put_contents($tmpFileName, $less);
 		@chmod($tmpFileName, 0777);
 
@@ -499,14 +530,14 @@ class AssetHelper extends AppHelper {
  * @return void
  * @author Tim Koschuetzki
  */
-	function _convertCoffeeScriptToJs($coffee) {
+	function _coffeescript($coffee) {
 		$opts = $this->settings['js'];
 
-		if ($opts['preConvertExt'] != 'coffee') {
+		if ($opts['preprocessor']['method'] != 'coffeescript') {
 			return $coffee;
 		}
 
-		$tmpCoffeeFile = $opts['path'] . 'aggregate' . DS . md5($coffee) . '.' . $opts['preConvertExt'];
+		$tmpCoffeeFile = $opts['path'] . 'aggregate' . DS . md5($coffee) . '.' . $opts['preprocessor']['ext'];
 
 		file_put_contents($tmpCoffeeFile, $coffee);
 		@chmod($tmpCoffeeFile, 0777);
@@ -515,9 +546,7 @@ class AssetHelper extends AppHelper {
 
 		$err = array();
 		exec($cmd, $err);
-		// pr($cmd);
-		// prd($err);
-		$tmpJsFile = r('.' . $opts['preConvertExt'], '.js', $tmpCoffeeFile);
+		$tmpJsFile = r('.' . $opts['preprocessor']['ext'], '.js', $tmpCoffeeFile);
 		$out = file_get_contents($tmpJsFile);
 
 		if (!empty($err)) {
@@ -540,7 +569,28 @@ class AssetHelper extends AppHelper {
 		return CssMin::process($css);
 	}
 /**
- * Minifies a given javascript string.
+ * Minifies a given javascript string using jsmin.
+ *
+ * @param string $js 
+ * @return void
+ * @author Tim Koschuetzki
+ */
+	function _uglifyjs($js) {
+		$opts = $this->settings['js'];
+		$tmpFileName = $opts['path'] . 'aggregate' . DS . md5($js) . '.' . $opts['ext'];
+		file_put_contents($tmpFileName, $js);
+		@chmod($tmpFileName, 0777);
+
+		$path = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'uglify-js' . DS . 'bin';
+		$cmd = $path . DS . 'uglifyjs -nc ' . $tmpFileName;
+
+		$out = array();
+		$r = exec($cmd, $out);
+		@unlink($tmpFileName);
+		return implode("\n", $out);
+	}
+/**
+ * Minifies a given javascript string using uglifyjs.
  *
  * @param string $js 
  * @return void
