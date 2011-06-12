@@ -225,7 +225,7 @@ Here is a list of all options you can set for js files:
             'delim' => ";\n\n", // delimiter to use between the contents of css files in the combined css
             'js_i18n' => true, // whether to do translate __('some test') occurences in your javascript files
             'minification' => array(
-                'method' => 'jsmin', // which algorithmn to use for js minifications, default is "jsmin", can also be "google_closure"
+                'method' => 'uglifyjs', // which algorithmn to use for js minifications, default is "uglifys", can also be "jsmin" or "google_closure"
                 'per_file' => true // if the minification should be run for each included js file or only once on the combined file; default is true
             )
         ),
