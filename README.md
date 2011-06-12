@@ -8,13 +8,12 @@ The Asset plugin does exactly that for you - it combines and minifies scripts an
 
 * Combining js files and css files.
 
-* Minification of combined files with support for different algorithmns (jsmin, google closure compiler and cssmin). There is an easy way to add your own algorithmns as well.
+* Minification of combined files with support for different algorithmns (uglifyjs, jsmin, closure compiler and cssmin). There is an easy way to add your own algorithmns as well.
 * Ability to specify which assets should be loaded for a given Controller::action pair. This ensures you only load the files that you really need on the page.
-* Optional support for converting LESS to CSS with support for prepending a file to the package that contains variables and less mixins.
-* Support for Coffeescript as a preprocessor for your javascript.
+* Support for preprocessors like LESSCSS with support for prepending a file to the package that contains variables and less mixins. For javascript there is support for CoffeeScript and Kaffeine.
 * Automatic detection and conversion for image paths in stylesheets.
 * Combining and minification of files is optional, so that you can load the proper files in development mode to keep error messages pointing to the correct files and lines.
-* Support for javascript internationalisation using the __('some test') syntax
+* Support for javascript internationalisation using the __('some text to translate') syntax
 * Automagic including of files that belong to your controller action or layout. For example if you access /posts/edit/2 the plugin will try to load the stylesheet /app/webroot/css/views/posts/edit.less and the script /app/webroot/js/views/posts/edit.js.
 
  It will also load /app/webroot/css/views/layouts/default.less and /app/webroot/js/views/layouts/default.js or whatever layout has been set in your PostsController.  
@@ -24,7 +23,7 @@ The Asset plugin does exactly that for you - it combines and minifies scripts an
    -> This builds packaged files or all languages (think of javascript i18n) and all layouts (think of the auto include paths)
 
 * Handles external stylesheets and scripts gracefully, by not including them into packaged files.
-* Only rebuilds packaged files if any of the stylesheets or scripts included in them changed (based on file modified time).
+* Only rebuilds packaged files if any of the stylesheets or scripts included in them changed.
 
 
 ## Requirements & Installation
@@ -32,7 +31,7 @@ The Asset plugin does exactly that for you - it combines and minifies scripts an
 
 The plugin has been designed to work with CakePHP 1.3.7 stable. You can also make it easily work for CakePHP 1.2.x. Instructions for that can be found at the end of the documentation.
 
-In case you intend to use LESScss, you require Nodejs version 0.2.2 or later.
+In case you intend to use LESSCSS, you require Nodejs version 0.2.2 or later. Likewise for Coffeescript, Kaffeine and Uglifyjs.
 
 
 1. Move the plugin to /app/plugins or wherever your plugins reside.
