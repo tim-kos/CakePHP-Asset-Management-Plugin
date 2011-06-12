@@ -506,22 +506,30 @@ class AssetHelper extends AppHelper {
  * @author Tim Koschuetzki
  */
 	function _less($less) {
-		$opts = $this->settings['css'];
-		if ($opts['preprocessor']['method'] != 'less') {
-			return $less;
-		}
-
-		$tmpFileName = $opts['path'] . 'aggregate' . DS . md5($less) . '.' . $opts['preprocessor']['ext'];
-		file_put_contents($tmpFileName, $less);
-		@chmod($tmpFileName, 0777);
-
-		$cmd = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'less' . DS . 'bin' . DS . 'lessc';
-		$cmd = $this->pathToNode . ' ' . $cmd . ' ' . $tmpFileName;
-
-		$out = array();
-		exec($cmd, $out);
-		@unlink($tmpFileName);
-		return implode("\n", $out);
+		$cmd = 'less' . DS . 'bin' . DS . 'lessc';
+		return $this->_runCmdOnTmpFile('css', $cmd, $less);
+	}
+/**
+ * Converts a given $kaffeine string into js.
+ *
+ * @param string $less 
+ * @return void
+ * @author Tim Koschuetzki
+ */
+	function _kaffeine($kaffeine) {
+		$cmd = 'kaffeine' . DS . 'bin' . DS . 'kaffeine -c';
+		return $this->_runCmdOnTmpFile('js', $cmd, $kaffeine);
+	}
+/**
+ * Minifies a given javascript string using uglifyjs.
+ *
+ * @param string $js 
+ * @return void
+ * @author Tim Koschuetzki
+ */
+	function _uglifyjs($js) {
+		$cmd = 'uglify-js' . DS . 'bin' . DS . 'uglifyjs -nc';
+		return $this->_runCmdOnTmpFile('js', $cmd, $js);
 	}
 /**
  * Converts a given coffee script string into javascript
@@ -531,31 +539,32 @@ class AssetHelper extends AppHelper {
  * @author Tim Koschuetzki
  */
 	function _coffeescript($coffee) {
-		$opts = $this->settings['js'];
+		$cmd = 'coffee-script' . DS . 'bin' . DS . 'coffee -p';
+		return $this->_runCmdOnTmpFile('js', $cmd, $coffee);
+	}
+/**
+ * undocumented function
+ *
+ * @param string $type 
+ * @param string $cmd 
+ * @param string $content 
+ * @return void
+ * @author Tim Koschuetzki
+ */
+	function _runCmdOnTmpFile($type, $cmd, $content) {
+		$opts = $this->settings[$type];
 
-		if ($opts['preprocessor']['method'] != 'coffeescript') {
-			return $coffee;
-		}
+		$tmpFile = $opts['path'] . 'aggregate' . DS . md5($content) . '.' . $opts['preprocessor']['ext'];
 
-		$tmpCoffeeFile = $opts['path'] . 'aggregate' . DS . md5($coffee) . '.' . $opts['preprocessor']['ext'];
+		file_put_contents($tmpFile, $content);
+		@chmod($tmpFile, 0777);
 
-		file_put_contents($tmpCoffeeFile, $coffee);
-		@chmod($tmpCoffeeFile, 0777);
-
-		$cmd = 'coffee -c ' . $tmpCoffeeFile;
+		$cmd = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'node_modules' . DS . $cmd . ' ' . $tmpFile;
 
 		$err = array();
-		exec($cmd, $err);
-		$tmpJsFile = r('.' . $opts['preprocessor']['ext'], '.js', $tmpCoffeeFile);
-		$out = file_get_contents($tmpJsFile);
+		exec($cmd, $out);
 
-		if (!empty($err)) {
-			$out .= 'alert("' . implode("\n", $err) . '");';
-		}
-		@unlink($tmpCoffeeFile);
-		@unlink($tmpJsFile);
-
-		return $out;
+		return trim(implode("\n", $out));
 	}
 /**
  * Minifies a given $css string.
@@ -567,27 +576,6 @@ class AssetHelper extends AppHelper {
 	function _cssmin($css) {
 		require_once(APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'cssmin.php');
 		return CssMin::process($css);
-	}
-/**
- * Minifies a given javascript string using jsmin.
- *
- * @param string $js 
- * @return void
- * @author Tim Koschuetzki
- */
-	function _uglifyjs($js) {
-		$opts = $this->settings['js'];
-		$tmpFileName = $opts['path'] . 'aggregate' . DS . md5($js) . '.' . $opts['ext'];
-		file_put_contents($tmpFileName, $js);
-		@chmod($tmpFileName, 0777);
-
-		$path = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'uglify-js' . DS . 'bin';
-		$cmd = $path . DS . 'uglifyjs -nc ' . $tmpFileName;
-
-		$out = array();
-		$r = exec($cmd, $out);
-		@unlink($tmpFileName);
-		return implode("\n", $out);
 	}
 /**
  * Minifies a given javascript string using uglifyjs.

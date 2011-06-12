@@ -1,0 +1,124 @@
+#brackets_for_keywords
+
+compiles: 
+
+if key in json, @[key] = expand o
+
+to: 
+
+if(key in json) @[key] = expand o
+
+
+compiles:
+if true// hello
+  ok(true)
+to:
+if(true)// hello
+  ok(true)
+
+compiles:  
+for x in [1,2,3,2*2] {
+  ok(true)
+}
+to:
+for(x in [1,2,3,2*2]) {
+  ok(true)
+}
+
+compiles:
+if true {
+  ok(true)
+}
+to:
+if(true) {
+  ok(true)
+}
+
+compiles:
+if false {
+  ok(false)
+}
+else {
+  ok(true)
+}
+to:
+if(false) {
+  ok(false)
+}
+else {
+  ok(true)
+}
+
+compiles:
+for var I=0; I<1; I++ {
+  ok(true)
+}
+to:
+for(var I=0; I<1; I++) {
+  ok(true)
+}
+
+compiles:
+while I == 1 {
+  ok(true)
+  I = 0
+}
+to:
+while(I == 1) {
+  ok(true)
+  I = 0
+}
+
+compiles:
+if !false
+  ok(true)
+
+to:
+if(!false)
+  ok(true)
+  
+compiles:
+function() {
+  for i=0; i < n; i++
+    fn.call(this, i) 
+}
+to:
+function() {
+  for(i=0; i < n; i++)
+    fn.call(this, i)
+}
+
+compiles:
+if x == 2, return true
+x
+to:
+if(x == 2) return true
+x
+
+compiles:
+if x, y += 1
+x
+to:
+if(x) y += 1
+x
+
+compiles: 
+for i, v in A, i++
+
+to:
+for(i, v in A) i++
+
+compiles:
+if (x) y()
+x
+to:
+if (x) y()
+x
+
+compiles:
+if x 
+   || y {}
+    
+to:
+if(x
+   || y) {}

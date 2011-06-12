@@ -1,0 +1,297 @@
+#at bang
+
+
+compiles:
+function() {
+  err, data = get_it!
+}
+
+to: 
+function() {
+  get_it(function(_0, _1) { err = _0, data = _1 })
+}
+compiles:
+function() {
+  x = {
+    count: User.count!, 
+    puzzles: User.puzzles!("today") 
+  }
+}
+
+to:
+function() {
+  User.count(function(_0) { User.puzzles("today", function(_1) { x = { 
+    count: _0,
+    puzzles: _1
+  } }) })
+}
+
+
+
+compiles:
+function() {
+  res.send({
+    count: User.count!, 
+    puzzles: User.puzzles!("today") 
+  })
+}
+
+to:
+function() {
+  User.count(function(_0) { User.puzzles("today", function(_1) { res.send({ 
+    count: _0, 
+    puzzles: _1
+  }) }) })
+}
+
+
+
+compiles:
+function() {
+  res.send({
+    count: User.count!
+  })
+}
+
+to:
+function() {
+  User.count(function(_0) { res.send({ 
+    count: _0
+  }) })
+}
+
+
+compiles:
+function() {
+  res.send({
+    count: User.count!, 
+    puzzles: User.puzzles("yesterday") 
+  })
+}
+
+to:
+function() {
+  User.count(function(_0) { res.send({ 
+    count: _0, 
+    puzzles: User.puzzles("yesterday")
+  }) })
+}
+
+
+
+
+compiles:
+function() {
+  create!
+  //x
+ }
+
+to:
+function() {
+  create(function() {
+  //x
+ }) }
+
+
+compiles:
+function() {
+  sum = add!(3, 4).length
+}
+
+to:
+function() {
+  add(3, 4, function(_0) { sum = _0.length })
+}
+
+
+ 
+
+
+compiles:
+x = null
+function() {
+  create!
+  x = 10
+}
+
+to:
+x = null
+function() {
+  create(function() {
+  x = 10 })
+}
+
+
+compiles:
+x = null
+function() {
+  create!
+  @x = 10
+}
+
+to:
+x = null
+function() {
+  var _this = this; create(function() {
+  _this.x = 10 })
+}
+
+
+compiles:
+function() {
+  x, y = get!
+  alert(x)
+}
+
+to:
+function() {
+  get(function(_0, _1) { x = _0, y = _1 
+  alert(x) })
+}
+
+compiles:
+function() {
+  x, y = get!
+}
+
+to:
+function() {
+  get(function(_0, _1) { x = _0, y = _1 })
+}
+
+compiles:
+function() {
+  x = get!.length
+}
+
+to:
+function() {
+  get(function(_0) { x = _0.length })
+}
+
+compiles:
+function() {
+  x = get!.length
+}
+
+to:
+function() {
+  get(function(_0) { x = _0.length })
+}
+
+compiles: 
+function() {
+  puzzle1.users!("played").length.should.eql(0)
+}
+to:
+function() {
+  puzzle1.users("played", function(_0) { _0.length.should.eql(0) })
+}
+
+
+compiles:
+function() {
+  callback(count!)
+}
+
+to:
+function() {
+  count(function(_0) { callback(_0) })
+}
+
+
+compiles:
+function() {
+  a.callback(a.count!)
+}
+
+to:
+function() {
+  a.count(function(_0) { a.callback(_0) })
+}
+
+
+compiles:
+function() {
+  sum = add!(3, 4)
+  ok(sum == 7)
+}
+
+to:
+function() {
+  add(3, 4, function(_0) { sum = _0
+  ok(sum == 7) })
+}
+
+compiles:
+function(callback) {
+  callback(add!(3,4))
+}
+to:
+function(callback) {
+  add(3,4, function(_0) { callback(_0) })
+}
+
+compiles:
+function() {
+  callback({a: count!})
+}
+
+to:
+function() {
+  count(function(_0) { callback({a: _0}) })
+}
+
+compiles:
+function() {
+  a(callback(count!))
+}
+
+to:
+function() {
+  count(function(_0) { a(callback(_0)) })
+}
+
+compiles:
+function() {
+  count!
+  x = 10
+  ---
+  say!
+  x = 20
+}
+
+to:
+function() {
+  count(function() {
+  x = 10 })
+
+  say(function() {
+  x = 20 })
+}
+
+compiles: 
+function() {
+  if(User.find!(id)) {
+    error("already exists")
+  }
+  done()
+}
+
+to:
+function() {
+  User.find(id, function(_0) { if(_0) {
+    error("already exists")
+  }
+  done() })
+}
+
+compiles:
+function() {
+  client.set!(u)
+}
+
+to:
+function() {
+  client.set(u, function() {  })
+}

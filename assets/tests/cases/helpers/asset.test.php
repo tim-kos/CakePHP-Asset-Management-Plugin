@@ -108,18 +108,18 @@ CSS;
 
 	function testConvertLessToCss() {
 		$less = <<<LESS
-		.faq {
-			margin: 40px 0 0 0;
-			h3{
-				font-size: 22px;
-				font-weight: normal;
-				margin-bottom:0;
-			}
-			p {
-			  font-size: 14px;
-			  margin-bottom: 1em;
-			}
-		}
+.faq {
+  margin: 40px 0 0 0;
+  h3{
+    font-size: 22px;
+    font-weight: normal;
+    margin-bottom:0;
+  }
+  p {
+    font-size: 14px;
+    margin-bottom: 1em;
+  }
+}
 LESS;
 
 		$expected = <<<CSS
@@ -156,7 +156,6 @@ CSS;
     return _results;
   })();
 }).call(this);
-
 JS;
 
 		$this->Sut->settings['js']['preprocessor'] = array(
@@ -164,6 +163,21 @@ JS;
 			'ext' => 'coffee'
 		);
 		$result = $this->Sut->_coffeescript($coffee);
+		$this->assertEqual($result, $expected);
+	}
+
+	function testConvertKaffeineToJs() {
+		$kaffeine = 'open door';
+		$expected = <<<JS
+open(door)
+JS;
+
+		$this->Sut->settings['js']['preprocessor'] = array(
+			'method' => 'kaffeine',
+			'ext' => 'k'
+		);
+		$result = $this->Sut->_kaffeine($kaffeine);
+
 		$this->assertEqual($result, $expected);
 	}
 

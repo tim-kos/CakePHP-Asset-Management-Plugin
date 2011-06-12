@@ -1,0 +1,96 @@
+#operators
+
+compiles:
+if(side == 1) letter .= toLowerCase()
+
+to:
+if(side == 1) letter = letter.toLowerCase()
+
+compiles:
+x(function() {
+  this.y ||= this.x = new A
+})
+
+to:
+x(function() {
+  this.y = this.y || this.x = new A
+})
+
+compiles:
+
+x ||= 5
+
+to:
+
+x = x || 5
+
+compiles:
+
+x[1] ||= x*[1,2]
+
+to:
+
+x[1] = x[1] || x*[1,2]
+
+
+compiles:
+
+x .= length
+
+to:
+
+x = x.length
+
+compiles:
+
+x(1).hello[1] .= toUpperCase()
+
+to:
+
+x(1).hello[1] = x(1).hello[1].toUpperCase()
+
+compiles:
+c = a <- b
+to:
+c = __merge(a, b)
+
+function __merge(a,b) {
+  b = b || {};
+  for(var k in b) a[k] = b[k];
+  return a;
+}
+compiles:
+a <- b
+to: 
+__merge(a, b)
+
+function __merge(a,b) {
+  b = b || {};
+  for(var k in b) a[k] = b[k];
+  return a;
+}
+
+compiles:
+a <- b
+z = a*z[123] <- b.options().z
+to:
+__merge(a, b)
+z = __merge(a*z[123], b.options().z)
+
+function __merge(a,b) {
+  b = b || {};
+  for(var k in b) a[k] = b[k];
+  return a;
+}
+
+compiles: 
+
+a <- (b <- c) 
+to:
+__merge(a, (__merge(b, c)))
+
+function __merge(a,b) {
+  b = b || {};
+  for(var k in b) a[k] = b[k];
+  return a;
+}
