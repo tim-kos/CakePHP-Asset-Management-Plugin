@@ -52,7 +52,7 @@ class AssetHelper extends AppHelper {
 	var $params = array();
 	var $pathToNode = '/usr/local/bin/node';
 
-	var $_fileFetchingCache = array();
+	var $_fileCache = array();
 	var $_resultCache = array();
 	var $_preIncludeContent = '';
 	var $_usePreprocessor = true;
@@ -128,7 +128,7 @@ class AssetHelper extends AppHelper {
  * @author Tim Koschuetzki
  */
 	function reset() {
-		$this->_fileFetchingCache = array();
+		$this->_fileCache = array();
 		$this->_resultCache = array();
 		$this->_preIncludeContent = '';
 	}
@@ -417,10 +417,10 @@ class AssetHelper extends AppHelper {
 
 		$result = '';
 		foreach ($package as $include) {
-			if (isset($opts['locale']) && array_key_exists($include . $opts['locale'], $this->_fileFetchingCache)) {
-				$content = $this->_fileFetchingCache[$include . $opts['locale']];
-			} elseif (array_key_exists($include, $this->_fileFetchingCache)) {
-				$content = $this->_fileFetchingCache[$include];
+			if (isset($opts['locale']) && array_key_exists($include . $opts['locale'], $this->_fileCache)) {
+				$content = $this->_fileCache[$include . $opts['locale']];
+			} elseif (array_key_exists($include, $this->_fileCache)) {
+				$content = $this->_fileCache[$include];
 			} else {
 				$content = file_get_contents($include);
 
@@ -459,9 +459,9 @@ class AssetHelper extends AppHelper {
 				}
 
 				if (isset($opts['locale']) && $opts['locale']) {
-					$this->_fileFetchingCache[$include . $opts['locale']] = $content;
+					$this->_fileCache[$include . $opts['locale']] = $content;
 				} else {
-					$this->_fileFetchingCache[$include] = $content;
+					$this->_fileCache[$include] = $content;
 				}
 			}
 

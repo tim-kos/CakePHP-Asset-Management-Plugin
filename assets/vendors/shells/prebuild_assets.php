@@ -11,8 +11,6 @@ class PrebuildAssetsShell extends Shell {
 	function main() {
 		$this->out('Running prebuild assets shell.');
 
-		Configure::write('App.cache_assets', true);
-
 		if (isset($this->params['lang'])) {
 			$this->langs = explode(',', $this->params['lang']);
 		}
