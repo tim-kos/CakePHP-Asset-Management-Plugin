@@ -9,8 +9,6 @@
  * @author Tim Koschuetzki, Property of Debuggable Ltd., http://debuggable.com
  */
 class AssetHelper extends AppHelper {
-	var $helpers = array('Common', 'Html');
-
 	var $settings = array(
 		'css' => array(
 			'path' => CSS,
@@ -116,22 +114,16 @@ class AssetHelper extends AppHelper {
 		}
 		$result = $this->_resultCache[$key];
 
-		if ($out) {
-			if (!isset($this->Html)) {
-				App::import('Helper', 'Html');
-				$this->Html = new HtmlHelper();
-			}
+		if (!$out) {
+			return $result;
+		}
 
+		foreach ($externals as $file) {
 			if ($type == 'js') {
-				foreach ($externals as $file) {
-					echo $this->Html->script($file);
-				}
+				echo sprintf('<script type="text/javascript" src="%s"></script>', $file);
 			}
-
 			if ($type == 'css') {
-				foreach ($externals as $file) {
-					echo $this->Html->css($file);
-				}
+				echo sprintf('<link rel="stylesheet" type="text/css" href="%s"/>', $file);
 			}
 		}
 
@@ -253,10 +245,10 @@ class AssetHelper extends AppHelper {
 		foreach ($result as $file) {
 			$file = r($opts['path'], '', $file);
 			if ($type == 'js') {
-				echo $this->Html->script($file);
+				echo sprintf('<script type="text/javascript" src="%s"></script>', $file);
 			}
 			if ($type == 'css') {
-				echo $this->Html->css($file);
+				echo sprintf('<link rel="stylesheet" type="text/css" href="%s"/>', $file);
 			}
 		}
 	}
