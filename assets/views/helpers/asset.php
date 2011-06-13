@@ -29,7 +29,7 @@ class AssetHelper extends AppHelper {
 			'path' => JS,
 			'ext' => 'js',
 			'delim' => ";\n\n",
-			'i18n' => true,
+			'locale' => false,
 			'preprocessor' => array(
 				'method' => false,
 				'ext' => '',
@@ -50,13 +50,12 @@ class AssetHelper extends AppHelper {
 		)
 	);
 	var $params = array();
-	var $lang = null;
 	var $pathToNode = '/usr/local/bin/node';
+
 	var $_fileFetchingCache = array();
 	var $_resultCache = array();
 	var $_preIncludeContent = '';
 	var $_usePreprocessor = true;
-
 /**
  * Builds the packaged and minified asset file for a given $package with $settings.
  *
@@ -86,13 +85,6 @@ class AssetHelper extends AppHelper {
 			$this->layouts = array($View->layout);
 		} elseif (isset($layout)) {
 			$this->layouts = array($layout);
-		}
-
-		if (!isset($lang) && defined('LANG')) {
-			$lang = LANG;
-		}
-		if (isset($lang)) {
-			$this->lang = $lang;
 		}
 
 		$files = $this->_filesToInclude($package, $opts, $type);
@@ -207,9 +199,7 @@ class AssetHelper extends AppHelper {
 			$content .= file_get_contents($include);
 
 			if ($type === 'js') {
-				if ($this->lang && strpos($content, $opts['i18n']) !== false) {
-					$content = $this->_parseJsTranslations($content);
-				}
+				$content = $this->_parseJsTranslations($content);
 
 				$ext = explode('.', $include);
 				$ext = array_pop($ext);
@@ -363,10 +353,8 @@ class AssetHelper extends AppHelper {
 
 		$fileName = 'aggregate' . DS . $fileNames . '_' . $mtimeBuffer;
 
-		if ($type == 'js') {
-			if ($this->lang) {
- 				$fileName .= '_' . $this->lang;
-			}
+		if ($type == 'js' && $opts['locale']) {
+			$fileName .= '_' . $opts['locale'];
 		}
 		if ($this->settings['minify']) {
 			$fileName .= '.min';
@@ -428,16 +416,16 @@ class AssetHelper extends AppHelper {
 
 		$result = '';
 		foreach ($package as $include) {
-			if (array_key_exists($include . $this->lang, $this->_fileFetchingCache)) {
-				$content = $this->_fileFetchingCache[$include . $this->lang];
+			if (isset($opts['locale']) && array_key_exists($include . $opts['locale'], $this->_fileFetchingCache)) {
+				$content = $this->_fileFetchingCache[$include . $opts['locale']];
 			} elseif (array_key_exists($include, $this->_fileFetchingCache)) {
 				$content = $this->_fileFetchingCache[$include];
 			} else {
 				$content = file_get_contents($include);
 
 				if ($type === 'js') {
-					if ($this->lang && strpos($content, $opts['i18n']) !== false) {
-						$cacheKey = $include . $this->lang;
+					if (isset($opts['locale']) && $opts['locale']) {
+						$cacheKey = $include . $opts['locale'];
 						$content = $this->_parseJsTranslations($content);
 					}
 				}
@@ -446,7 +434,9 @@ class AssetHelper extends AppHelper {
 				$ext = array_pop($ext);
 
 				$hasPreprocessorExt = $opts['preprocessor']['ext'] === $ext;
-				$usePreprocessor = $this->_usePreprocessor && $opts['preprocessor']['per_file'] && $hasPreprocessorExt;
+				$usePreprocessor = $this->_usePreprocessor && $opts['preprocessor']['per_file'];
+				$usePreprocessor = $usePreprocessor && $hasPreprocessorExt;
+
 				if ($type == 'css' && $usePreprocessor) {
 					$method = '_' . $opts['preprocessor']['method'];
 					$content = $this->{$method}($content);
@@ -467,8 +457,8 @@ class AssetHelper extends AppHelper {
 					}
 				}
 
-				if ($this->lang) {
-					$this->_fileFetchingCache[$include . $this->lang] = $content;
+				if (isset($opts['locale']) && $opts['locale']) {
+					$this->_fileFetchingCache[$include . $opts['locale']] = $content;
 				} else {
 					$this->_fileFetchingCache[$include] = $content;
 				}
@@ -652,22 +642,25 @@ class AssetHelper extends AppHelper {
  * translated string.
  *
  * @param string $text the text to translate
- * @param string $lang optional target language
  * @return void
  * @author Tim Koschuetzki
  */
 	function _parseJsTranslations($text) {
+		$opts = $this->settings['js'];
+		if (!$opts['locale']) {
+			return $text;
+		}
+
 		$matches = array();
 		$length = strlen($text) - 1;
 		for ($i = 0; $i < $length; $i++) {
 			if ($text{$i} == '_' && $text{$i + 1} == '_' && $text{$i + 2} == '(') {
 				$match = '';
 				for ($j = $i + 3; $j < $length; $j++) {
-					if ($text{$j} != ')') {
-						$match .= $text{$j};
-					} else {
+					if ($text{$j} == ')') {
 						break;
 					}
+					$match .= $text{$j};
 				}
 				$matches[] = $match;
 				$i = $j;
@@ -675,7 +668,7 @@ class AssetHelper extends AppHelper {
 		}
 
 		$oldLang = Configure::read('Config.language');
-		Configure::write('Config.language', Configure::read('I18n.locale.' . $this->lang));
+		Configure::write('Config.language', Configure::read('I18n.locale.' . $opts['locale']));
 
 		// the matches are wrapped in single quotes or double quotes
 		// we need to take care of those when replacing the strings
