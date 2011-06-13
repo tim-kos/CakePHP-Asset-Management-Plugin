@@ -323,7 +323,8 @@ class AssetHelper extends AppHelper {
 					$myPath = r(':pass:', $this->params['pass'][0], $myPath);
 				}
 
-				if ($this->_usePreprocessor && strpos($myPath, '.' . $opts['preprocessor']['ext']) === false) {
+				$hasPreprocessorExt = strpos($myPath, '.' . $opts['preprocessor']['ext']) === false;
+				if ($this->_usePreprocessor && $hasPreprocessorExt) {
 					$myPath .= '.' . $opts['preprocessor']['ext'];
 				} else {
 					$myPath .= '.' . $opts['ext'];
@@ -542,11 +543,9 @@ class AssetHelper extends AppHelper {
 		file_put_contents($tmpFile, $content);
 		@chmod($tmpFile, 0777);
 
-		$cmd = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'node_modules' . DS . $cmd . ' ' . $tmpFile;
-
-		$err = array();
-		exec($cmd, $out);
-
+		$path = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'node_modules' . DS;
+		exec($path . $cmd . ' ' . $tmpFile, $out);
+		@unlink($tmpFile);
 		return trim(implode("\n", $out));
 	}
 /**
