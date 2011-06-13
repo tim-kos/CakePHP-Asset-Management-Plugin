@@ -29,7 +29,7 @@ The Asset plugin does exactly that for you - it combines and minifies scripts an
 ## Requirements & Installation
 
 
-The plugin has been designed to work with CakePHP 1.3.7 stable. You can also make it easily work for CakePHP 1.2.x. Instructions for that can be found at the end of the documentation.
+The plugin has been designed to work with CakePHP 1.3.7 stable, but it also works with 1.2.x.
 
 In case you intend to use LESSCSS, you require Nodejs version 0.2.2 or later. Likewise for Coffeescript, Kaffeine and Uglifyjs.
 
@@ -163,7 +163,7 @@ To prebuild all your assets just run the prebuild_assets shell:
 
 ./cake prebuild_assets
 
-This will build all packaged and minified files for all combinations of languages, layouts.
+This will build all packaged and minified files for all combinations of languages and layouts.
 
 You can supply the list of languages you want to build javascript files for via the lang parameter.
 
@@ -181,7 +181,6 @@ Here is a list of all options you can set for css files:
     $inclusionRules = Configure::read('CssIncludes');
     $settings = array(
         'type' => 'css', // the type of inclusion to do; can be "css" or "js"
-        'packaging' => Configure::read('Assets.packaging'), // determine if files should be combined or not
         'css' => array(
           'path' => CSS, // the path where to look for stylesheets and where your "aggregate" folder is
           'ext' => 'css', // the extension of the result file(s)
@@ -210,12 +209,11 @@ Here is a list of all options you can set for js files:
     $inclusionRules = Configure::read('JsIncludes');
     $settings = array(
         'type' => 'js',
-        'packaging' => Configure::read('Assets.packaging')
         'js' => array(
             'path' => JS, // the path where to look for scripts and where your "aggregate" folder is
             'ext' => 'js', // the extension of the result file(s)
             'delim' => ";\n\n", // delimiter to use between the contents of css files in the combined css
-            'js_i18n' => true, // whether to do translate __('some test') occurences in your javascript files
+            'locale' => 'de', // whether to translate __('some test') occurences in your javascript files into the specified locale; default value is false, so that no translation takes place
             'minification' => array(
                 'method' => 'uglifyjs', // which algorithmn to use for js minifications, default is "uglifys", can also be "jsmin" or "google_closure"
                 'per_file' => true // if the minification should be run for each included js file or only once on the combined file; default is true
@@ -228,93 +226,118 @@ Here is a list of all options you can set for js files:
 
 ### General Options
 
-@TODO: Move language to js setting in the helper
+1. Packaging
 
-1. Combining
-@todo
+To switch off packaging for development mode for example to have errors appear in proper files and on proper lines, use the 'packaging' key:
+
+$settings = array(
+    'packaging' => false,
+    'type' => 'js',
+    'js' => array(
+      // your js settings
+    ),
+);
+
+The default value is `true`.
 
 2. Minification
-@todo
+
+To switch off any minification, use the 'minify' key:
+
+$settings = array(
+    'minify' => false,
+    'type' => 'js',
+    'js' => array(
+      // your js settings
+    ),
+);
+
+The default value is `true`.
+
 
 3. Configuring auto include paths
-@todo
+
+Auto include paths are a nice means to have certain assets automatically included for your specific view. The plugin will automatically try to load the file in /app/webroot/js/views/layouts/default.js if your CakePHP view is in the `default` layout.
+
+Also if you access /posts/edit/12 for example and you are rendering the view in /app/views/posts/edit.ctp, the plugin will try to include /app/webroot/css/views/posts/edit.less.
+
+If you use a preprocessor, it will look for files ending with the specific preprocessor file extension.
+
+This is really nice, but you can customize this further with your own paths:
+
+$settings = array(
+    'type' => 'js',
+    'js' => array(
+      // your js settings
+    ),
+		'auto_include_paths' => array(
+			':path:views/layouts/:layout:',
+			':path:views/:controller:/:action:',
+			':path:views/:controller:/:action:_:pass:'
+		)
+);
+
+:path: represents your outer path for everything, usually /app/webroot/js.
+:controller: is the name of the currently used controller
+:action: is the name of the currently used view
+:pass: is the pass variable, useful to include /app/webroot/js/views/pages/view_pricing.less for the pricing page that is handled by Cake's default PagesController.
+
 
 4. Directory cleaning
-@todo
 
-5. Language
-@todo
+With all the packaging and file creation going on for each different request, the number of files in your /webroot/css/aggregate and /webroot/js/aggregate folders can grow pretty easily.
 
-6. pathToNode (in case you use LESS)
-@todo
+If the combination of files is the same, but some of them changed, we need to create a new packaged version for this set of asset files. The plugin is smart enough to remove the old version for this combination of files.
+
+if you don't want this behavior, turn it off with the `cleanDir` key:
+
+$settings = array(
+    'type' => 'js',
+    'js' => array(
+      // your js settings
+    ),
+    'cleanDir' => false
+);
+
+The default value is `true`.
+
+5. Internationalisation
+
+The plugin can translate your javascript for you. Enclose strings to translate in your javascript with __('some string') (remember that from the normal i18n in Cake?). If you specify a locale key in your js settings, the plugin will translate them according to your .po file for that locale.
+
+$settings = array(
+    'type' => 'js',
+    'js' => array(
+      'locale' => 'de', // translate into German
+      // your other js settings
+    )
+);
+
+By default, `locale` is false, so no translations are done.
+
+
+6. pathToNode
+
+If your node executable is not in `/usr/local/bin/node` changed the pathToNode key accordingly:
+
+$settings = array(
+    'type' => 'js',
+    'js' => array(
+      // your js settings
+    ),
+    'pathToNode' => '/my/path/to/node'
+);
 
 
 
 ## Adding your own minification algorithm.
 
-@TODO
-
-
-## Making the plugin work with CakePHP 1.2.x
-
-The only thing you need to change is the call to $this->Html->script() in the includeFiles() method of the AssetHelper.
-
-Change it from
-
-```php
-    <?php
-    if ($out) {
-        if (!isset($this->Html)) {
-            App::import('Helper', 'Html');
-            $this->Html = new HtmlHelper();
-        }
-
-        if ($type == 'js') {
-            foreach ($externals as $file) {
-                echo $this->Html->script($file);
-            }
-        }
-
-        if ($type == 'css') {
-            foreach ($externals as $file) {
-                echo $this->Html->css($file);
-            }
-        }
-    }
-    ?>
-```
-
-to
-
-```php
-    <?php
-    if ($out) {
-        if (!isset($this->Html)) {
-            App::import('Helper', 'Html');
-            $this->Html = new HtmlHelper();
-        }
-        if (!isset($this->Javascript)) {
-            App::import('Helper', 'Javascript');
-            $this->Html = new JavascriptHelper();
-        }
-
-        if ($type == 'js') {
-            foreach ($externals as $file) {
-                echo $this->Javascript->link($file);
-            }
-        }
-
-        if ($type == 'css') {
-            foreach ($externals as $file) {
-                echo $this->Html->css($file);
-            }
-        }
-    }
-    ?>
-```
-Now the plugin should work for you as well on Cake 1.2.x.
+Creating your own minification algorithmn is easy. First, fork the repository.
+Then just set the 'method' key in the 'minification' part of your settings to a function name, like 'myminify'. Finally, in the asset.php helper, create a method _myminify($content) {}. It should return the minified version of $content. You are done.
 
 
 # Changelog
 
-version 0.2 Changing the api for minification engines and preprocessors. Adding support for coffeescript and kaffeine. Adding support for uglifyjs compressor. jsmin is still available, but uglifyjs is also the default by now.
+0.2.2 Changing api to remove $lang property. It's now called 'locale' and sits in the js specific settings. Some more internal refactoring done. Removed dependency from Html helper.
+
+0.2.1 Changing the api for minification engines and preprocessors. Adding support for coffeescript and kaffeine. Adding support for uglifyjs compressor. jsmin is still available, but uglifyjs is also the default by now.
