@@ -58,7 +58,9 @@ class PrebuildAssetsShell extends Shell {
 							'controller' => Inflector::underscore($pairData[0]),
 							'action' => $pairData[1]
 						),
-						'lang' => $lang,
+						'js' => array(
+							'locale' => $lang
+						),
 						'cleanDir' => false
 					);
 					$this->AssetHelper->includeFiles($inclusionRules, $settings, false);
