@@ -489,7 +489,7 @@ class AssetHelper extends AppHelper {
  */
 	function _less($less) {
 		$cmd = 'less' . DS . 'bin' . DS . 'lessc';
-		return $this->_runCmdOnTmpFile('css', $cmd, $less);
+		return $this->_runCmdOnContent('css', $cmd, $less);
 	}
 /**
  * Converts a given $kaffeine string into js.
@@ -500,7 +500,7 @@ class AssetHelper extends AppHelper {
  */
 	function _kaffeine($kaffeine) {
 		$cmd = 'kaffeine' . DS . 'bin' . DS . 'kaffeine -c';
-		return $this->_runCmdOnTmpFile('js', $cmd, $kaffeine);
+		return $this->_runCmdOnContent('js', $cmd, $kaffeine);
 	}
 /**
  * Minifies a given javascript string using uglifyjs.
@@ -511,7 +511,7 @@ class AssetHelper extends AppHelper {
  */
 	function _uglifyjs($js) {
 		$cmd = 'uglify-js' . DS . 'bin' . DS . 'uglifyjs -nc';
-		return $this->_runCmdOnTmpFile('js', $cmd, $js);
+		return $this->_runCmdOnContent('js', $cmd, $js);
 	}
 /**
  * Converts a given coffee script string into javascript
@@ -522,10 +522,11 @@ class AssetHelper extends AppHelper {
  */
 	function _coffeescript($coffee) {
 		$cmd = 'coffee-script' . DS . 'bin' . DS . 'coffee -p';
-		return $this->_runCmdOnTmpFile('js', $cmd, $coffee);
+		return $this->_runCmdOnContent('js', $cmd, $coffee);
 	}
 /**
- * undocumented function
+ * Runs the given command $cmd with the $type options (js or css) on
+ * the given content
  *
  * @param string $type 
  * @param string $cmd 
@@ -533,7 +534,7 @@ class AssetHelper extends AppHelper {
  * @return void
  * @author Tim Koschuetzki
  */
-	function _runCmdOnTmpFile($type, $cmd, $content) {
+	function _runCmdOnContent($type, $cmd, $content) {
 		$opts = $this->settings[$type];
 
 		$tmpFile = $opts['path'] . 'aggregate' . DS . md5($content) . '.' . $opts['preprocessor']['ext'];
@@ -612,7 +613,6 @@ class AssetHelper extends AppHelper {
  * Concats the timestamps of the modified times of the files in an array $package
  * and returns the md5 hash of the result string. This is to have a unique representation
  * of the file modified times of a set of files.
- * undocumented function
  *
  * @param string $package 
  * @return void
@@ -628,7 +628,6 @@ class AssetHelper extends AppHelper {
 /**
  * Concatenates the values of an array and applies an md5 hash on the result string.
  * This is to encode an array into a unique string.
- * undocumented function
  *
  * @param string $package 
  * @return void
