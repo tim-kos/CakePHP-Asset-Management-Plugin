@@ -230,13 +230,15 @@ Here is a list of all options you can set for js files:
 
 To switch off packaging for development mode for example to have errors appear in proper files and on proper lines, use the 'packaging' key:
 
-$settings = array(
-    'packaging' => false,
-    'type' => 'js',
-    'js' => array(
-      // your js settings
-    ),
-);
+```php
+    $settings = array(
+      'packaging' => false,
+      'type' => 'js',
+      'js' => array(
+        // your js settings
+      ),
+    );
+```
 
 The default value is `true`.
 
