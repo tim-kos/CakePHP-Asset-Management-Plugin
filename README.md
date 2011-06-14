@@ -246,13 +246,15 @@ The default value is `true`.
 
 To switch off any minification, use the 'minify' key:
 
-$settings = array(
-    'minify' => false,
-    'type' => 'js',
-    'js' => array(
-      // your js settings
-    ),
-);
+```php
+    $settings = array(
+      'minify' => false,
+      'type' => 'js',
+      'js' => array(
+        // your js settings
+      ),
+    );
+```
 
 The default value is `true`.
 
@@ -267,17 +269,19 @@ If you use a preprocessor, it will look for files ending with the specific prepr
 
 This is really nice, but you can customize this further with your own paths:
 
-$settings = array(
-    'type' => 'js',
-    'js' => array(
-      // your js settings
-    ),
-		'auto_include_paths' => array(
-			':path:views/layouts/:layout:',
-			':path:views/:controller:/:action:',
-			':path:views/:controller:/:action:_:pass:'
-		)
-);
+```php
+    $settings = array(
+      'type' => 'js',
+      'js' => array(
+        // your js settings
+      ),
+      'auto_include_paths' => array(
+        ':path:views/layouts/:layout:',
+        ':path:views/:controller:/:action:',
+        ':path:views/:controller:/:action:_:pass:'
+      )
+    );
+```
 
 :path: represents your outer path for everything, usually /app/webroot/js.
 :controller: is the name of the currently used controller
@@ -293,13 +297,15 @@ If the combination of files is the same, but some of them changed, we need to cr
 
 if you don't want this behavior, turn it off with the `cleanDir` key:
 
-$settings = array(
-    'type' => 'js',
-    'js' => array(
-      // your js settings
-    ),
-    'cleanDir' => false
-);
+```php
+    $settings = array(
+      'type' => 'js',
+      'js' => array(
+        // your js settings
+      ),
+      'cleanDir' => false
+    );
+```
 
 The default value is `true`.
 
@@ -307,13 +313,15 @@ The default value is `true`.
 
 The plugin can translate your javascript for you. Enclose strings to translate in your javascript with __('some string') (remember that from the normal i18n in Cake?). If you specify a locale key in your js settings, the plugin will translate them according to your .po file for that locale.
 
-$settings = array(
-    'type' => 'js',
-    'js' => array(
-      'locale' => 'de', // translate into German
-      // your other js settings
-    )
-);
+```php
+    $settings = array(
+      'type' => 'js',
+      'js' => array(
+        'locale' => 'de', // translate into German
+        // your other js settings
+      )
+    );
+```
 
 By default, `locale` is false, so no translations are done.
 
@@ -322,13 +330,15 @@ By default, `locale` is false, so no translations are done.
 
 If your node executable is not in `/usr/local/bin/node` changed the pathToNode key accordingly:
 
-$settings = array(
-    'type' => 'js',
-    'js' => array(
-      // your js settings
-    ),
-    'pathToNode' => '/my/path/to/node'
-);
+```php
+    $settings = array(
+      'type' => 'js',
+      'js' => array(
+        // your js settings
+      ),
+      'pathToNode' => '/my/path/to/node'
+    );
+```
 
 
 
