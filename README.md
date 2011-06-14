@@ -226,7 +226,7 @@ Here is a list of all options you can set for js files:
 
 ### General Options
 
-1. Packaging
+#### Packaging
 
 To switch off packaging for development mode for example to have errors appear in proper files and on proper lines, use the 'packaging' key:
 
@@ -242,7 +242,7 @@ To switch off packaging for development mode for example to have errors appear i
 
 The default value is `true`.
 
-2. Minification
+#### Minification
 
 To switch off any minification, use the 'minify' key:
 
@@ -259,7 +259,7 @@ To switch off any minification, use the 'minify' key:
 The default value is `true`.
 
 
-3. Configuring auto include paths
+#### Configuring auto include paths
 
 Auto include paths are a nice means to have certain assets automatically included for your specific view. The plugin will automatically try to load the file in /app/webroot/js/views/layouts/default.js if your CakePHP view is in the `default` layout.
 
@@ -289,7 +289,7 @@ This is really nice, but you can customize this further with your own paths:
 :pass: is the pass variable, useful to include /app/webroot/js/views/pages/view_pricing.less for the pricing page that is handled by Cake's default PagesController.
 
 
-4. Directory cleaning
+#### Directory cleaning
 
 With all the packaging and file creation going on for each different request, the number of files in your /webroot/css/aggregate and /webroot/js/aggregate folders can grow pretty easily.
 
@@ -309,7 +309,7 @@ if you don't want this behavior, turn it off with the `cleanDir` key:
 
 The default value is `true`.
 
-5. Internationalisation
+#### Internationalisation
 
 The plugin can translate your javascript for you. Enclose strings to translate in your javascript with __('some string') (remember that from the normal i18n in Cake?). If you specify a locale key in your js settings, the plugin will translate them according to your .po file for that locale.
 
@@ -326,7 +326,7 @@ The plugin can translate your javascript for you. Enclose strings to translate i
 By default, `locale` is false, so no translations are done.
 
 
-6. pathToNode
+#### Path to Node executable
 
 If your node executable is not in `/usr/local/bin/node` changed the pathToNode key accordingly:
 
