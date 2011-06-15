@@ -91,8 +91,6 @@ class AssetHelper extends AppHelper {
 		$includes = $files[0];
 		$externals = $files[1];
 
-		// check to build cache
-
 		$settings = $this->settings;
 		unset($settings['params'], $settings['cleanDir'], $settings['layout']);
 		$key = md5(json_encode($settings)) . md5(json_encode($includes));
@@ -162,10 +160,21 @@ class AssetHelper extends AppHelper {
 		foreach ($package as $include => $rules) {
 			if ($this->_isAllowed($controller, $action, $rules)) {
 				if (strpos($include, '://') === false && strpos($include, '//') !== 0) {
+					if (strpos($include, 'plugins/') === 0) {
+						$fileName = explode('/', $include);
+						$pluginName = Inflector::camelize($fileName[1]);
+						unset($fileName[0]);
+						unset($fileName[1]);
+						$pluginPath = App::pluginPath($pluginName);
+						$include = $pluginPath . 'webroot/' . implode('/', $fileName);
+					}
+
 					if (strpos($include, '/') !== 0) {
 						$include = $opts['path'] . $include;
 					}
-					$includes[] = $include;
+					if (file_exists($include)) {
+						$includes[] = $include;
+					}
 				} else {
 					$externals[] = $include;
 				}
@@ -243,7 +252,7 @@ class AssetHelper extends AppHelper {
 		}
 	}
 /**
- * undocumented function
+ * Fetch the contents of the pre include file if necessary.
  *
  * @param string $includes 
  * @param string $opts 
@@ -265,8 +274,11 @@ class AssetHelper extends AppHelper {
 		}
 	}
 /**
- * undocumented function
+ * Return the packaged file for the set of $includes
  *
+ * @param string $includes 
+ * @param string $type 
+ * @param string $out 
  * @return void
  * @author Tim Koschuetzki
  */
