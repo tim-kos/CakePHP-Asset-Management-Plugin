@@ -556,7 +556,7 @@ class AssetHelper extends AppHelper {
 		@chmod($tmpFile, 0777);
 
 		$path = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'node_modules' . DS;
-		exec($path . $cmd . ' ' . $tmpFile, $out);
+		exec($this->pathToNode . ' ' . $path . $cmd . ' ' . $tmpFile, $out);
 		@unlink($tmpFile);
 		return trim(implode("\n", $out));
 	}
