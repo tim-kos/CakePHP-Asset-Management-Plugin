@@ -172,6 +172,7 @@ class AssetHelper extends AppHelper {
 					if (strpos($include, '/') !== 0) {
 						$include = $opts['path'] . $include;
 					}
+
 					if (file_exists($include)) {
 						$includes[] = $include;
 					}
@@ -207,11 +208,11 @@ class AssetHelper extends AppHelper {
 			}
 			$content .= file_get_contents($include);
 
+			$ext = explode('.', $include);
+			$ext = array_pop($ext);
+
 			if ($type === 'js') {
 				$content = $this->_parseJsTranslations($content);
-
-				$ext = explode('.', $include);
-				$ext = array_pop($ext);
 
 				if ($this->_usePreprocessor && $ext == $opts['preprocessor']['ext']) {
 					$method = '_' . $opts['preprocessor']['method'];
@@ -244,10 +245,10 @@ class AssetHelper extends AppHelper {
 		foreach ($result as $file) {
 			$file = r($opts['path'], '', $file);
 			if ($type == 'js') {
-				echo sprintf('<script type="text/javascript" src="%s"></script>', $file);
+				echo sprintf('<script type="text/javascript" src="/js/%s"></script>', $file);
 			}
 			if ($type == 'css') {
-				echo sprintf('<link rel="stylesheet" type="text/css" href="%s"/>', $file);
+				echo sprintf('<link rel="stylesheet" type="text/css" href="/css/%s"/>', $file);
 			}
 		}
 	}
