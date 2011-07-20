@@ -40,6 +40,7 @@ class AssetHelper extends AppHelper {
 				'per_file' => false
 			)
 		),
+		'host' => null,
 		'cleanDir' => true,
 		'minify' => true,
 		'packaging' => true,
@@ -244,11 +245,12 @@ class AssetHelper extends AppHelper {
 
 		foreach ($result as $file) {
 			$file = r($opts['path'], '', $file);
+			$src = $this->settings['host'] ? '//' . $this->settings['host'] : '';
 			if ($type == 'js') {
-				echo sprintf('<script type="text/javascript" src="/js/%s"></script>', $file);
+				echo sprintf('<script type="text/javascript" src="%s/js/%s"></script>', $src, $file);
 			}
 			if ($type == 'css') {
-				echo sprintf('<link rel="stylesheet" type="text/css" href="/css/%s"/>', $file);
+				echo sprintf('<link rel="stylesheet" type="text/css" href="%s/css/%s"/>', $src, $file);
 			}
 		}
 	}
@@ -284,21 +286,22 @@ class AssetHelper extends AppHelper {
  * @author Tim Koschuetzki
  */
 	function _packaged($includes, $type, $out) {
-		$fileName = $this->_buildFileForPackage($includes, $type);
+		$file = $this->_buildFileForPackage($includes, $type);
 
 		if (!$out) {
-			return $fileName;
+			return $file;
 		}
 
+		$src = $this->settings['host'] ? '//' . $this->settings['host'] : '';
 		if ($type == 'js') {
-			echo '<script type="text/javascript" src="/js/' . $fileName . '"></script>';
+			echo '<script type="text/javascript" src="' . $src . '/js/' . $file . '"></script>';
 		}
 
 		if ($type == 'css') {
-			echo '<link rel="stylesheet" type="text/css" href="/css/' . $fileName . '" />';
+			echo '<link rel="stylesheet" type="text/css" href="' . $src . '/css/' . $file . '" />';
 		}
 
-		return $fileName;
+		return $file;
 	}
 /**
  * Includes for example /webroot/js/views/controller_name/action.js and
