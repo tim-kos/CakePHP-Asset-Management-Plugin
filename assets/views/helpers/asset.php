@@ -492,7 +492,7 @@ class AssetHelper extends AppHelper {
  * @author Tim Koschuetzki
  */
 	function _convertCssPaths($css) {
-		$pattern = '/url\([\'"]?([^\/\'"])([^\)\'"]+)[\'"]?\)/mi';
+		$pattern = '/url\([\'"]?(?!http)([^\/\'"])([^\)\'"]+)[\'"]?\)/mi';
 		$replace = "url(../$1$2$3)";
 		$result = preg_replace($pattern, $replace, $css);
 		return $result;
