@@ -712,7 +712,7 @@ class AssetHelper extends AppHelper {
  */
 	function _isAllowed($object, $property, $rules, $default = false) {
 		$allowed = $default;
-
+		$pass = @$this->params['pass'][0];
 		preg_match_all('/\s?([^:,]+):([^,:]+)/is', $rules, $matches, PREG_SET_ORDER);
 
 		foreach ($matches as $match) {
@@ -720,16 +720,30 @@ class AssetHelper extends AppHelper {
 			$rawMatch = trim($rawMatch);
 			$allowedObject = trim($allowedObject);
 			$allowedProperty = trim($allowedProperty);
+
 			$allowedObject = r('*', '.*', $allowedObject);
 			$allowedProperty = r('*', '.*', $allowedProperty);
+
+			$myPassParam = false;
+
+			if (strpos($allowedProperty, '_') !== false) {
+				$allowedProperty = explode('_', $allowedProperty);
+				$myPassParam = $allowedProperty[1];
+				$allowedProperty = $allowedProperty[0];
+			}
 			$negativeCondition = false;
+
+
 			if (substr($allowedObject, 0, 1) == '!') {
 				$allowedObject = substr($allowedObject, 1);
 				$negativeCondition = true;
 			}
 
-			if (preg_match('/^'.$allowedObject.'$/i', $object) && 
-				preg_match('/^'.$allowedProperty.'$/i', $property)) {
+			$validPassParam = empty($pass) || empty($myPassParam) || $pass === $myPassParam;
+
+			if (preg_match('/^'.$allowedObject.'$/i', $object) &&
+				preg_match('/^'.$allowedProperty.'$/i', $property) &&
+				$validPassParam) {
 				$allowed = !$negativeCondition;
 			}
 		}
