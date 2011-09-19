@@ -1,0 +1,13 @@
+{
+  "name": "CakePHP-Asset-Management-Plugin",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "brequire": "0.0.6",
+    "coffee-script": "1.1.2",
+    "kaffeine": "0.1.5",
+    "less": "https://github.com/kixxauth/less.js/tarball/197e0204e419d9c0a8dc09b6c007f1dc4a07798d",
+    "optparse": "1.0.1",
+    "uglify-js": "1.0.7"
+  }
+}
