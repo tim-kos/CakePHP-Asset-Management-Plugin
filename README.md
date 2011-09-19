@@ -34,7 +34,10 @@ The plugin has been designed to work with CakePHP 1.3.7 stable, but it also work
 In case you intend to use LESSCSS, you require Nodejs version 0.2.2 or later. Likewise for Coffeescript, Kaffeine and Uglifyjs.
 
 
-1. Move the plugin to /app/plugins or wherever your plugins reside.
+1. Move the plugin to /app/plugins or wherever your plugins reside. You can also add the plugin as a submodule like so:
+```
+  git submodule add git://github.com/tim-kos/CakePHP-Asset-Management-Plugin.git plugins/assets
+```
 
 2. Create the folders /app/webroot/css/aggregate and /app/webroot/js/aggregate, chmod them to 644 and and then add the execute flag to directories recursively. Make sure to chown them to www-data.www-data:
 
