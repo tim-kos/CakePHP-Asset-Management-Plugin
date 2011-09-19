@@ -1,5 +1,11 @@
 <?php
 require_once(TESTS . 'app_test_case.php');
+if (!defined('TESTS_TMP')) {
+	define('TESTS_TMP', TMP . 'tests' . DS);
+}
+if (!is_writable(TESTS_TMP) && !mkdir(TESTS_TMP)) {
+	die('Test temp dir not writable, aborting: ' . TESTS_TMP);
+}
 class AssetTest extends AppTestCase {
 	function setUp() {
 		App::import('Helper', 'Assets.Asset');
