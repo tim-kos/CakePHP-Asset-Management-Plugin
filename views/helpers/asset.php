@@ -559,7 +559,8 @@ class AssetHelper extends AppHelper {
 		file_put_contents($tmpFile, $content);
 		@chmod($tmpFile, 0777);
 
-		$path = APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'node_modules' . DS;
+		$path = $this->_vendorPath() . 'node_modules' . DS;
+		prd($this->pathToNode . ' ' . $path . $cmd . ' ' . $tmpFile);
 		exec($this->pathToNode . ' ' . $path . $cmd . ' ' . $tmpFile, $out);
 		@unlink($tmpFile);
 		return trim(implode("\n", $out));
@@ -572,7 +573,7 @@ class AssetHelper extends AppHelper {
  * @author Tim Koschuetzki
  */
 	function _cssmin($css) {
-		require_once(APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'cssmin.php');
+		require_once($this->_vendorPath() . 'cssmin.php');
 		return CssMin::process($css);
 	}
 /**
@@ -583,7 +584,7 @@ class AssetHelper extends AppHelper {
  * @author Tim Koschuetzki
  */
 	function _jsmin($js) {
-		require_once(APP . 'plugins' . DS . 'assets' . DS . 'vendors' . DS . 'jsmin.php');
+		require_once($this->_vendorPath() . 'jsmin.php');
 		return JSMin::minify($js);
 	}
 /**
@@ -748,6 +749,16 @@ class AssetHelper extends AppHelper {
 			}
 		}
 		return $allowed;
+	}
+/**
+ * Returns the vendor path in the filesystem of this plugin
+ *
+ * @return void
+ * @author Christoph Tavan <tavan@nemata.com>
+ * @access protected
+ **/
+	function _vendorPath() {
+		return __DIR__ . DS . '..' . DS . '..' . DS . 'vendors' . DS;
 	}
 }
 ?>
