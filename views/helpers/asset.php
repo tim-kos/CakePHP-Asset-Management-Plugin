@@ -245,12 +245,17 @@ class AssetHelper extends AppHelper {
 
 		foreach ($result as $file) {
 			$file = r($opts['path'], '', $file);
-			$src = $this->settings['host'] ? '//' . $this->settings['host'] : '';
+			$path = sprintf('/%s/%s', $type, $file);
+			if ($this->settings['host']) {
+				$path = '//' . $this->settings['host'] . $path;
+			} else {
+				$path = Router::url($path);
+			}
 			if ($type == 'js') {
-				echo sprintf('<script type="text/javascript" src="%s/js/%s"></script>', $src, $file);
+				echo sprintf('<script type="text/javascript" src="%s"></script>', $path);
 			}
 			if ($type == 'css') {
-				echo sprintf('<link rel="stylesheet" type="text/css" href="%s/css/%s"/>', $src, $file);
+				echo sprintf('<link rel="stylesheet" type="text/css" href="%s"/>', $path);
 			}
 		}
 	}
@@ -292,13 +297,17 @@ class AssetHelper extends AppHelper {
 			return $file;
 		}
 
-		$src = $this->settings['host'] ? '//' . $this->settings['host'] : '';
-		if ($type == 'js') {
-			echo '<script type="text/javascript" src="' . $src . '/js/' . $file . '"></script>';
+		$path = sprintf('/%s/%s', $type, $file);
+		if ($this->settings['host']) {
+			$path = '//' . $this->settings['host'] . $path;
+		} else {
+			$path = Router::url($path);
 		}
-
+		if ($type == 'js') {
+			echo sprintf('<script type="text/javascript" src="%s"></script>', $path);
+		}
 		if ($type == 'css') {
-			echo '<link rel="stylesheet" type="text/css" href="' . $src . '/css/' . $file . '" />';
+			echo sprintf('<link rel="stylesheet" type="text/css" href="%s"/>', $path);
 		}
 
 		return $file;
