@@ -230,7 +230,7 @@ class AssetHelper extends AppHelper {
 			}
 
 			$toRemove = array('.' . $opts['preprocessor']['ext'], '.' . $opts['ext']);
-			$file = r($toRemove, '', basename($include));
+			$file = str_replace($toRemove, '', basename($include));
 			$file = $opts['path'] . 'aggregate' . DS . $file . '.' . $opts['ext'];
 
 			file_put_contents($file, $content);
@@ -244,7 +244,7 @@ class AssetHelper extends AppHelper {
 		}
 
 		foreach ($result as $file) {
-			$file = r($opts['path'], '', $file);
+			$file = str_replace($opts['path'], '', $file);
 			$src = $this->settings['host'] ? '//' . $this->settings['host'] : '';
 			if ($type == 'js') {
 				echo sprintf('<script type="text/javascript" src="%s/js/%s"></script>', $src, $file);
@@ -326,17 +326,17 @@ class AssetHelper extends AppHelper {
 					$replace = APP . 'plugins' . DS . $this->params['plugin'] . DS . $type . DS;
 				}
 
-				$myPath = r(':path:', $replace, $myPath);
-				$myPath = r(':layout:', $layout, $myPath);
+				$myPath = str_replace(':path:', $replace, $myPath);
+				$myPath = str_replace(':layout:', $layout, $myPath);
 
 				if (isset($this->params['controller'])) {
-					$myPath = r(':controller:', $this->params['controller'], $myPath);
+					$myPath = str_replace(':controller:', $this->params['controller'], $myPath);
 				}
 				if (isset($this->params['action'])) {
-					$myPath = r(':action:', $this->params['action'], $myPath);
+					$myPath = str_replace(':action:', $this->params['action'], $myPath);
 				}
 				if (isset($this->params['pass'][0]) && preg_match('/^[\w-]+$/', $this->params['pass'][0])) {
-					$myPath = r(':pass:', $this->params['pass'][0], $myPath);
+					$myPath = str_replace(':pass:', $this->params['pass'][0], $myPath);
 				}
 
 				$hasPreprocessorExt = strpos($myPath, '.' . $opts['preprocessor']['ext']) === false;
@@ -691,9 +691,9 @@ class AssetHelper extends AppHelper {
 			$matchWithoutQuotes = substr($match, 1, strlen($match) - 2);
 
 			$translation = __($matchWithoutQuotes, true);
-			$translation = r(a("'", '"'), a("\\'", '\\"'), $translation);
+			$translation = str_replace(a("'", '"'), a("\\'", '\\"'), $translation);
 
-			$text = r('__(' . $match . ')', $quote . $translation . $quote, $text);
+			$text = str_replace('__(' . $match . ')', $quote . $translation . $quote, $text);
 		}
 
 		Configure::write('Config.language', $oldLang);
@@ -721,8 +721,8 @@ class AssetHelper extends AppHelper {
 			$allowedObject = trim($allowedObject);
 			$allowedProperty = trim($allowedProperty);
 
-			$allowedObject = r('*', '.*', $allowedObject);
-			$allowedProperty = r('*', '.*', $allowedProperty);
+			$allowedObject = str_replace('*', '.*', $allowedObject);
+			$allowedProperty = str_replace('*', '.*', $allowedProperty);
 
 			$myPassParam = false;
 
