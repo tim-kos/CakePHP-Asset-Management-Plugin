@@ -335,7 +335,7 @@ class AssetHelper extends AppHelper {
 				if (isset($this->params['action'])) {
 					$myPath = r(':action:', $this->params['action'], $myPath);
 				}
-				if (isset($this->params['pass'][0]) && preg_match('/^\w+$/', $this->params['pass'][0])) {
+				if (isset($this->params['pass'][0]) && preg_match('/^[\w-]+$/', $this->params['pass'][0])) {
 					$myPath = r(':pass:', $this->params['pass'][0], $myPath);
 				}
 
